@@ -1,86 +1,117 @@
-Reference :
-1. JSX, React.createElement(), React element,Reconciliation, Virtual DOM, Diffing Algorithm, Renderer : 
-   [video](https://www.youtube.com/watch?v=7YhdqIR2Yzo&list=PLxRVWC-K96b0ktvhd16l3xA6gncuGP7gJ&index=1)
-2. Virtual DOM : [article](https://blog.logrocket.com/virtual-dom-react/)
-3. Fiber reconciler : [article](https://www.velotio.com/engineering-blog/react-fiber-algorithm)
+Overview : https://www.youtube.com/watch?v=za2FZ8QCE18
 
-## JSX, React.createElement(), React element, Babel :
-JSX stands for JavaScript XML and it is an XML-like syntax extension to ECMAScript. Basically it just provides the syntactic sugar for the React.createElement(type, props, ...children) function, giving us expressiveness of JavaScript along with HTML like template syntax.
+### 1. Basics
+react is a library not a framework , that let users create UI. It is combined with a renderer to render that UI on screen.
+Renderer for web - React-DOM
+Renderer for android - React-Native
 
-In the example below, 
-The app component can return the UI in two ways -
-1. using JSX syntax
-2. using React.createElement()
+react doesn't understand JSX . The JSX code we write is converted into react Elements (details on point 3) by babel.
 
-- Using the JSX syntax the code will look like these :
+CRA , VITE - React + React-DOM + live server + babel + bundler
 
-```JS
-export default function App() {
-  return (
-      <h1 className="greeting">Hello, this is a JSX Code!</h1>
-  );
-}
+### 2. React Component
+JS functions that returns JSX.
+
+The relation between React Component and React Element is the same as the relation between HTML and JS DOM Object.
+
+### 3. React Element
+Elements are typically created using JSX (JavaScript XML), a syntax extension in JavaScript that allows you to write HTML-like code within your JavaScript files.
+
+React elements can be created in 2 ways -
+
+1.write JSX , babel will convert it into react element.
+ex :
+
 ```
-- Using the React.createElement function it will look like these :
-
-```JS
-import React from 'react';
-
-export default function App() {
-  return React.createElement(
-    'h1',
-    { className: 'greeting' },
-    'Hello, this is a JSX Code!'
-  );
-}
+const element = <h1>Hello, World!</h1>;
 ```
 
-Internally both codes described above returns **React element**. This conversion from JSX to react element is done by **babel compiler**. 
+Internally tools like babel Converts this JSX Code into React.createElement function calls similiar to the example 2 below.
 
-When Babel processes JSX code, it transforms JSX syntax into React.createElement calls, which ultimately create React elements. 
+2.create react element with React.createElement(type,props,children).
+ex:
 
-React Element is a object that looks like these for the above two codes -
-```JS
+```
+const element = React.createElement('h1', null, 'Hello, World!');
+```
+
+React element for this two corresponding code will look like these -
+
+```
 {
-    $$typeof : Symbol(react.element)
-    type : "h1",
-    props : {
-        childern : "Hello, this is a JSX Code!",
-        className : "greeting",
-    },
-    ref : null,
-    key : null,
+    $$typeof:Symbol(react.element),
+    key:null,
+    props:{children:"Hello, World!"},
+    ref:null,
+    type:"h1",
 }
-``` 
+```
 
-## Virtual DOM :
-The virtual DOM is a much lighter replica of the actual DOM in the form of objects. The virtual DOM can be saved in the browser memory and doesn’t directly change what is shown on the user’s browser.
+### 4. React.createElement
+Here, React.createElement is used to create a react element . It takes three parameters -
+1.Type - HTML Tag / React Fragment
+2.Props - Classname / id / onClick / onChange ...
+3.Children - Main Content inside the tag
 
-## Reconciliation, Diffing algorithm :
-- Reconciliation :  It is the process for comparing the virtual DOM to the real DOM and calculating the minimum number of changes required to update the actual DOM. 
+Let's say in App.jsx file we will return a h1 tag with content "This is Heading"
 
-- Initial render : When the web app gets rendered on the client for the first time, React creates a tree like representation with the React elements in the memeory (virtual DOM). And it inserts the whole virtual DOM into real DOM. 
-  
-When any state is updated or for any other reason a re-render is triggered then comes the role of reconciliation and diffing algorithm.
+Usual Method (using JSX) :
 
-- Re-render : When rerender is triggered, React creates a new virtual DOM(NVD) representing the new code. Then it compares the NVD to the OVD(Old Virtual DOM) & using the diffing algorithm it identifies the changes & only updates those parts of the real DOM which are changed. This complete process is called reconciliation. 
+```
+return (
+    <div className="heading" key="1">
+        <h1>This is Heading</h1>
+    </div>
+)
+```
 
-- Diffing Algorithm : This algorithm is responsible for comparing the current virtual DOM with the previous one and identifying the minimum number of DOM operations required to update the UI. 
+Another Method (using JS - React.createElement) :
 
-![Reconciliation Process](https://blog.logrocket.com/wp-content/uploads/2023/01/5-react-actual-dom-update-repaint.png)
-  
-## Assumptions in diffing algorithm :
-1. Two elements of different types will produce different trees.
-2. When we have a list of child elements which often changes, we should provide an unique "key" as prop.
+```
+return React.createElement(
+    "div",
+    { className: "heading", key: "1" },
+    React.createElement("h1", null, "This is Heading")
+);
+```
 
-## Reconciler :
-Before react 16 - Stack reconcilier 
-From react 16 - Fiber reconcilier
-   
-## Reconciler v/s Renderer :
-- reconciler figures out the changes between previous version of virtual DOM and the current version of virtual DOM
-- renderer manipulates to real DOM to show the changes on the UI.
-   
-## Fiber reconciler :
-- It's a combination of fiber data structure and the diffing algorithm. 
+### 5. Virtual DOM :
+When we render an application UI , React creates a virtual DOM tree representing that UI and stores it in memory. On the next update, or in other words, when the data that renders the app changes, React will automatically create a new virtual DOM tree for the update.
 
+After React creates the new virtual DOM tree, it compares it to the previous snapshot using a diffing algorithm called reconciliation to figure out what changes are necessary.
+
+After the reconciliation process, React uses a renderer library like ReactDOM, which takes the differ information to update the rendered app. This library ensures that the actual DOM only receives and repaints the updated node or nodes:
+
+For more details go through this article - https://blog.logrocket.com/virtual-dom-react/
+
+### 5. Reconciliation :
+Reconciliation in React refers to the process of efficiently updating the UI to reflect changes in the component state.
+
+Here's how it works:
+
+- Virtual DOM: React works with a lightweight, in-memory representation of the real DOM called the virtual DOM. This virtual DOM is much faster to manipulate than the actual DOM.
+- State change: When something triggers a state change in a component, React creates a new virtual DOM tree based on the updated state.
+- Diffing: React then compares the old and new virtual DOM trees using a diffing algorithm. This algorithm efficiently identifies the minimal set of changes required to update the actual DOM to match the new state.
+- Patching: Based on the diff result, React applies only the necessary changes to the actual DOM. This could involve creating new elements, updating existing ones, or deleting old ones.
+
+### 5. Diffing algorithm :
+The diffing algorithm is a part of reconciliation that specifically deals with comparing two versions of the Virtual DOM (current and previous) to find the minimal set of changes needed to update the actual DOM.
+
+Go through this article - https://dev.to/ridhamz/the-reconciliation-algorithm-5bab
+
+### 6. React Re-render :
+
+There are three steps in a re-render -
+1.trigger
+2.render
+3.commit
+Go through this article - https://iampradip.hashnode.dev/understanding-react-render-and-commit-phase-reconciliation
+
+### 7. Batch Updates :
+
+Go through this article - https://medium.com/swlh/react-state-batch-update-b1b61bd28cd2
+
+### 8. React Fiber:
+
+Tejas Kumar (yt) :
+https://www.youtube.com/watch?v=rKk4XJYzSQA
